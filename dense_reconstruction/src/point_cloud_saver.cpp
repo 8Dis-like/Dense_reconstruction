@@ -6,7 +6,6 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <mutex>
 #include <signal.h>
-#include <pcl/filters/voxel_grid.h>
 #include <unordered_set>
 
 // 定义哈希函数，用于存储 pcl::PointXYZ
@@ -68,43 +67,34 @@ private:
 
     void savePointCloud() {
         std::lock_guard<std::mutex> lock(mutex_);
-    
+
         if (cloud_.empty()) {
             ROS_WARN("No points in cloud, skipping save.");
             return;
         }
-    
-        // 1️⃣ **使用哈希表去重**
+
+        // 去重处理
         std::unordered_set<pcl::PointXYZ, PointHash, PointEqual> unique_points;
         pcl::PointCloud<pcl::PointXYZ> filtered_cloud;
-    
+
         for (const auto& point : cloud_) {
-            if (unique_points.insert(point).second) {  // 插入成功说明该点是新点
+            if (unique_points.insert(point).second) {
                 filtered_cloud.push_back(point);
             }
         }
-    
+
         ROS_INFO("Removed duplicate points, %lu unique points remain.", filtered_cloud.size());
-    
-        // 2️⃣ **应用体素网格滤波，进一步去除冗余点**
-        pcl::PointCloud<pcl::PointXYZ> voxel_filtered_cloud;
-        pcl::VoxelGrid<pcl::PointXYZ> voxel;
-        voxel.setInputCloud(filtered_cloud.makeShared());
-        voxel.setLeafSize(0.05f, 0.05f, 0.05f);  // 体素尺寸，值越大去重越强
-        voxel.filter(voxel_filtered_cloud);
-    
-        ROS_INFO("After VoxelGrid filtering, %lu points remain.", voxel_filtered_cloud.size());
-    
-        // 3️⃣ **保存最终优化的点云**
-        pcl::io::savePCDFileASCII("dense_test.pcd", cloud_);
-        ROS_INFO("Final point cloud saved to dense_map.pcd with %lu points", cloud_.size());
+
+        // 保存最终点云
+        pcl::io::savePCDFileASCII("dense_test.pcd", filtered_cloud);
+        ROS_INFO("Final point cloud saved to dense_test.pcd with %lu points", filtered_cloud.size());
     }
 
     ros::NodeHandle nh_;
     ros::Subscriber point_cloud_sub_;
     pcl::PointCloud<pcl::PointXYZ> cloud_;
     std::mutex mutex_;
-    bool save_triggered_;  // 避免多次保存
+    bool save_triggered_;
 };
 
 PointCloudSaver* PointCloudSaver::instance_ = nullptr;
@@ -123,4 +113,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-
