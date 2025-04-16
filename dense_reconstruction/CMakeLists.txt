@@ -142,13 +142,6 @@ target_link_libraries(point_cloud_saver
   ${OpenCV_LIBRARIES}  # 链接 OpenCV 库
 )
 
-add_executable(pcd_to_pointcloud src/pcd_to_pointcloud.cpp)
-target_link_libraries(pcd_to_pointcloud
-  ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}  # 链接 OpenCV 库
-  pcl_common
-  pcl_io
-)
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/dense_reconstruction.cpp
