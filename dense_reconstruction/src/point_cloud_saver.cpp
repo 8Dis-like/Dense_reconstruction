@@ -73,21 +73,9 @@ private:
             return;
         }
 
-        // 去重处理
-        std::unordered_set<pcl::PointXYZ, PointHash, PointEqual> unique_points;
-        pcl::PointCloud<pcl::PointXYZ> filtered_cloud;
-
-        for (const auto& point : cloud_) {
-            if (unique_points.insert(point).second) {
-                filtered_cloud.push_back(point);
-            }
-        }
-
-        ROS_INFO("Removed duplicate points, %lu unique points remain.", filtered_cloud.size());
-
         // 保存最终点云
-        pcl::io::savePCDFileASCII("dense_test.pcd", filtered_cloud);
-        ROS_INFO("Final point cloud saved to dense_test.pcd with %lu points", filtered_cloud.size());
+        pcl::io::savePCDFileASCII("dense_test.pcd", cloud_);
+        ROS_INFO("Final point cloud saved to dense_test.pcd with %lu points", cloud_.size());
     }
 
     ros::NodeHandle nh_;
