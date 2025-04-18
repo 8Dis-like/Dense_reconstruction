@@ -174,7 +174,7 @@ target_link_libraries(point_cloud_saver
 #############
 ## Install ##
 #############
-install(TARGETS dense_reconstruction point_cloud_saver pcd_to_pointcloud
+install(TARGETS dense_reconstruction point_cloud_saver 
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
